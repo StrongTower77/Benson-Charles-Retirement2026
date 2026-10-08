@@ -1,0 +1,1 @@
+{"name":"benson-retirement-rsvp","private":true,"version":"1.0.0","description":"Three-section retirement website and Vercel RSVP endpoint","scripts":{"dev":"vercel dev"}}
