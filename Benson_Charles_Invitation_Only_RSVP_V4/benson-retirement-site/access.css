@@ -79,3 +79,8 @@ body{isolation:isolate}
  .motion-scene::after,.motion-glow-four,.depth-haze,.light-ribbon-three{animation:none!important;will-change:auto}
  .motion-glow-four{opacity:.3}
 }
+
+/* Official retirement crest: preserve original transparent artwork and full proportions. */
+.masthead .masthead-mark{display:flex;justify-content:center;align-items:center;min-height:0;line-height:1;margin:0 auto 4px}
+.masthead .official-crest-entrance{display:block;width:clamp(135px,18vw,180px);max-width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 7px 16px rgba(0,0,0,.28))}
+@media(max-width:470px){.masthead .official-crest-entrance{width:138px}}
