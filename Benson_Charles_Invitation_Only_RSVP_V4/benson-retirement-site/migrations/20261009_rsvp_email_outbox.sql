@@ -94,3 +94,34 @@ begin
 end; $$;
 revoke all on function public.complete_retirement_email_outbox(uuid,boolean,text,text) from public, anon, authenticated;
 grant execute on function public.complete_retirement_email_outbox(uuid,boolean,text,text) to service_role;
+
+-- Dedicated server-side RSVP submission throttle (kept separate from unlock throttle).
+-- The API hashes invitation + requester IP with its session secret; only hashes persist.
+create table if not exists public.retirement_rsvp_submit_limits (
+  fingerprint text primary key check (fingerprint ~ '^[0-9a-f]{64}$'),
+  window_start timestamptz not null default now(),
+  attempts integer not null default 0 check (attempts >= 0)
+);
+alter table public.retirement_rsvp_submit_limits enable row level security;
+revoke all on public.retirement_rsvp_submit_limits from public, anon, authenticated;
+grant select, insert, update on public.retirement_rsvp_submit_limits to service_role;
+
+create or replace function public.check_retirement_rsvp_submit_limit(p_fingerprint text)
+returns boolean language plpgsql security invoker set search_path = public as $$
+declare count_now integer;
+begin
+  if p_fingerprint !~ '^[0-9a-f]{64}$' then return false; end if;
+  insert into public.retirement_rsvp_submit_limits(fingerprint,window_start,attempts)
+  values(p_fingerprint,clock_timestamp(),1)
+  on conflict (fingerprint) do update set
+    attempts=case
+      when retirement_rsvp_submit_limits.window_start < clock_timestamp()-interval '10 minutes' then 1
+      else retirement_rsvp_submit_limits.attempts+1 end,
+    window_start=case
+      when retirement_rsvp_submit_limits.window_start < clock_timestamp()-interval '10 minutes' then clock_timestamp()
+      else retirement_rsvp_submit_limits.window_start end
+  returning attempts into count_now;
+  return count_now<=12;
+end; $$;
+revoke all on function public.check_retirement_rsvp_submit_limit(text) from public, anon, authenticated;
+grant execute on function public.check_retirement_rsvp_submit_limit(text) to service_role;
