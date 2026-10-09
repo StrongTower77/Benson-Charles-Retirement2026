@@ -43,7 +43,10 @@ export default async function handler(req,res){
   if(!result?.ok)return res.status(400).json({error:result?.reason==='guest_limit'?'This invitation does not allow that many attendees. Please adjust your guest count.':'Your invitation is no longer active. Contact the organizer for assistance.'});
   // RSVP is already committed. Delivery is best-effort in the background; a provider
   // outage never changes the saved RSVP outcome. Pending jobs are retried by cron.
-  if(emailSettings())waitUntil(processRsvpEmailQueue().catch(err=>console.error('RSVP mail queue:',err?.name||'error')));
+  if(emailSettings()){
+   try{waitUntil(processRsvpEmailQueue().catch(err=>console.error('RSVP mail queue:',err?.name||'error')));}
+   catch(err){console.error('RSVP email scheduling error',err?.name||'unknown');}
+  }
   return res.status(200).json({ok:true});
  }catch(err){console.error('RSVP error',err?.name);return res.status(503).json({error:'Unable to process RSVP right now.'});}
 }
