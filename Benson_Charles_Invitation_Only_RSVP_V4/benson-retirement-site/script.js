@@ -26,3 +26,24 @@ form.addEventListener('submit',async(e)=>{
 document.getElementById('new-rsvp').addEventListener('click',()=>{form.reset();updateAttendance();form.hidden=false;document.getElementById('success-message').hidden=true;statusEl.textContent='';});
 const links=[...document.querySelectorAll('[data-link]')];
 if('IntersectionObserver' in window){const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('active',a.dataset.link===e.target.id));});},{rootMargin:'-30% 0px -55% 0px'});document.querySelectorAll('main>.page').forEach(s=>obs.observe(s));}
+
+
+/* V7 hero playback: defer network cost for reduced-motion/data-saving clients. */
+(()=> {
+ const video=document.querySelector('.hero-yacht-video');
+ if(!video)return;
+ const scene=video.closest('.hero-art');
+ const reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
+ const dataSaver=navigator.connection && navigator.connection.saveData;
+ if(dataSaver||reduce.matches)return;
+ video.addEventListener('playing',()=>scene.classList.add('is-playing'));
+ video.addEventListener('error',()=>{scene.classList.remove('is-playing');video.pause()});
+ const safePlay=()=>{if(!reduce.matches&&!document.hidden)video.play().catch(()=>scene.classList.remove('is-playing'));};
+ const pause=()=>{video.pause();scene.classList.remove('is-playing');};
+ document.addEventListener('visibilitychange',()=>document.hidden?pause():safePlay());
+ reduce.addEventListener?.('change',()=>reduce.matches?pause():safePlay());
+ if('IntersectionObserver' in window){
+   const observer=new IntersectionObserver(entries=>entries[0]?.isIntersecting?safePlay():pause(),{threshold:.08});
+   observer.observe(video.closest('.hero'));
+ }else safePlay();
+})();
