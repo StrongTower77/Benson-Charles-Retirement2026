@@ -8,3 +8,17 @@
 @media (max-width:650px){.hero-yacht-image{object-position:37% center;opacity:.2}}
 
 .verified-note{border:1px solid #cbdbca;background:#eef5ed;color:#34553d;padding:13px 15px;font-size:12px;line-height:1.5;margin:-3px 0 22px}.verified-note span{color:#aa853b;margin-right:7px}
+
+
+/* V7 luxury motion hero. A static poster is always the accessible, network-safe fallback. */
+.hero-art{overflow:hidden}
+.hero-art .hero-yacht-image,.hero-art .hero-yacht-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 47%;filter:saturate(.91) contrast(1.02);pointer-events:none}
+.hero-art .hero-yacht-image{z-index:0;opacity:.37}
+.hero-art .hero-yacht-video{z-index:1;opacity:0;transition:opacity .65s ease}
+.hero-art.is-playing .hero-yacht-video{opacity:.42}
+.hero-art.is-playing .hero-yacht-image{opacity:0}
+.hero-art:after{z-index:2;pointer-events:none}
+.hero-art .orb,.hero-art .halo,.hero-art .star-field{z-index:3}
+.hero-content{z-index:4}
+@media(max-width:650px){.hero-art .hero-yacht-image,.hero-art .hero-yacht-video{object-position:37% 47%}.hero-art.is-playing .hero-yacht-video{opacity:.34}}
+@media(prefers-reduced-motion:reduce){.hero-art .hero-yacht-video{display:none!important}.hero-art .hero-yacht-image,.hero-art.is-playing .hero-yacht-image{opacity:.32!important}}
