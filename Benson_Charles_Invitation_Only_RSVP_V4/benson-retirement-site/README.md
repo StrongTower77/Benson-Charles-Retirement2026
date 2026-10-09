@@ -79,6 +79,10 @@ more mail. Acceptances and declines both receive acknowledgements.
    in its bearer authorization header; it never exposes guest records. No keys should
    be committed to GitHub or exposed in the client.
 
+For anti-abuse protection, RSVP submissions have a dedicated per-invitation/per-requester
+limit of 12 attempts in 10 minutes, independent of the invitation unlock throttle.
+The migration and API change must deploy together, otherwise submissions fail closed.
+
 Guest confirmations intentionally omit the private location, marina, address and invitation
 code. The guest must enter their code at the website to view directions. If the sending
 configuration is incomplete, the RSVP still saves and new email jobs remain pending.
