@@ -65,7 +65,8 @@ async function databaseRpc(path,payload){
     body:JSON.stringify(payload),cache:'no-store',signal:AbortSignal.timeout(7000)
   });
   if(!result.ok)throw Error('email_database_'+result.status);
-  return result.json();
+  const raw=await result.text();
+  return raw ? JSON.parse(raw) : null;
 }
 async function sendQueued(job,settings){
   const msg=buildRsvpEmail(job,settings);
