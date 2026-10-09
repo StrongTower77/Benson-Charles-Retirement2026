@@ -23,9 +23,14 @@
 @media(max-width:650px){.hero-art .hero-yacht-image,.hero-art .hero-yacht-video{object-position:37% 47%}.hero-art.is-playing .hero-yacht-video{opacity:.34}}
 @media(prefers-reduced-motion:reduce){.hero-art .hero-yacht-video{display:none!important}.hero-art .hero-yacht-image,.hero-art.is-playing .hero-yacht-image{opacity:.32!important}}
 
-/* Official retirement crest replaces the legacy BC navigation placeholder. */
-.site-header .official-crest-link{display:flex;align-items:center;justify-content:center;flex-shrink:0;min-width:85px;min-height:55px;line-height:1}
-.site-header .official-crest-header{display:block;width:95px;max-height:70px;height:auto;object-fit:contain;filter:drop-shadow(0 3px 8px rgba(0,0,0,.32))}
-.site-header .official-crest-link:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
-@media(max-width:800px){.site-header .official-crest-link{min-width:70px}.site-header .official-crest-header{width:75px;max-height:56px}}
-@media(max-width:470px){.site-header .official-crest-link{min-width:65px}.site-header .official-crest-header{width:70px;max-height:54px}}
+
+/* Brand hierarchy: elegant name in navigation, full official crest centered in the hero. */
+.site-header .brand-wordmark{display:inline-flex;align-items:baseline;gap:.19em;flex-shrink:0;white-space:nowrap;font-family:'Cormorant Garamond',serif;font-size:clamp(27px,2.15vw,35px);font-weight:500;letter-spacing:-.035em;line-height:1.05;color:var(--cream)}
+.site-header .brand-wordmark em{font-weight:400;color:var(--gold-light)}
+.site-header .brand-wordmark:focus-visible{outline:2px solid var(--gold);outline-offset:5px}
+.hero .hero-logo-title{position:relative;display:flex;align-items:center;justify-content:center;width:fit-content;max-width:100%;font-size:0;line-height:0;margin:15px auto 12px;isolation:isolate}
+.hero .hero-logo-title::before{content:"";position:absolute;inset:5% -16%;border-radius:50%;background:radial-gradient(ellipse,rgba(6,16,19,.48) 0%,rgba(9,22,21,.25) 47%,transparent 74%);filter:blur(14px);z-index:-1;pointer-events:none}
+.hero .hero-official-crest{display:block;width:clamp(280px,33vw,495px);max-width:min(80vw,495px);height:auto;object-fit:contain;filter:drop-shadow(0 15px 24px rgba(0,0,0,.42))}
+@media(max-width:800px){.site-header .brand-wordmark{font-size:clamp(24px,3.6vw,30px)}.hero .hero-official-crest{width:min(60vw,380px);max-width:100%}}
+@media(max-width:470px){.site-header .brand-wordmark{font-size:clamp(22px,5.3vw,26px);gap:.13em}.hero .hero-official-crest{width:min(79vw,330px)}.hero .ornament{margin:17px 0}.hero .hero-logo-title{margin:10px auto 8px}.hero .gold-line{margin:0 auto 18px}.hero .hero-copy{margin-bottom:24px}}
+@media(max-width:370px){.site-header{padding-left:13px;padding-right:13px}.site-header .brand-wordmark{font-size:21px}.site-header nav{gap:9px}.site-header nav a{font-size:8px}.hero .hero-official-crest{width:80vw}}
