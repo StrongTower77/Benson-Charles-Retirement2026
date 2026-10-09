@@ -23,3 +23,5 @@ jobs:
           node --check api/rsvp.js
           node --check lib/session.js
           node --check access.js
+          node --check api/rsvp-email-drain.js
+          node --check lib/rsvp-emails.js
