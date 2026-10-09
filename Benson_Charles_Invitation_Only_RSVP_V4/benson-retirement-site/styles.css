@@ -6,3 +6,5 @@
 .hero-art:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(16,27,24,.65),rgba(16,27,24,.1),rgba(16,27,24,.65))}
 .hero-content{z-index:1}.reminder a{color:var(--gold-light);text-decoration:underline;text-underline-offset:3px}
 @media (max-width:650px){.hero-yacht-image{object-position:37% center;opacity:.2}}
+
+.verified-note{border:1px solid #cbdbca;background:#eef5ed;color:#34553d;padding:13px 15px;font-size:12px;line-height:1.5;margin:-3px 0 22px}.verified-note span{color:#aa853b;margin-right:7px}
