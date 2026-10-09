@@ -1,1 +1,14 @@
-{"name":"benson-retirement-rsvp","private":true,"version":"1.0.0","description":"Three-section retirement website and Vercel RSVP endpoint","scripts":{"dev":"vercel dev"}}
+{
+  "name": "benson-retirement-rsvp",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Private invitation entrance, protected event pages and RSVP API",
+  "scripts": {
+    "dev": "vercel dev",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@vercel/functions": "^3.0.0"
+  }
+}
