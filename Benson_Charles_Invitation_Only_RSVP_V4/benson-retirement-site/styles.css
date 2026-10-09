@@ -22,3 +22,10 @@
 .hero-content{z-index:4}
 @media(max-width:650px){.hero-art .hero-yacht-image,.hero-art .hero-yacht-video{object-position:37% 47%}.hero-art.is-playing .hero-yacht-video{opacity:.34}}
 @media(prefers-reduced-motion:reduce){.hero-art .hero-yacht-video{display:none!important}.hero-art .hero-yacht-image,.hero-art.is-playing .hero-yacht-image{opacity:.32!important}}
+
+/* Official retirement crest replaces the legacy BC navigation placeholder. */
+.site-header .official-crest-link{display:flex;align-items:center;justify-content:center;flex-shrink:0;min-width:85px;min-height:55px;line-height:1}
+.site-header .official-crest-header{display:block;width:95px;max-height:70px;height:auto;object-fit:contain;filter:drop-shadow(0 3px 8px rgba(0,0,0,.32))}
+.site-header .official-crest-link:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+@media(max-width:800px){.site-header .official-crest-link{min-width:70px}.site-header .official-crest-header{width:75px;max-height:56px}}
+@media(max-width:470px){.site-header .official-crest-link{min-width:65px}.site-header .official-crest-header{width:70px;max-height:54px}}
