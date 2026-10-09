@@ -23,9 +23,33 @@
 @media(max-width:650px){.hero-art .hero-yacht-image,.hero-art .hero-yacht-video{object-position:37% 47%}.hero-art.is-playing .hero-yacht-video{opacity:.34}}
 @media(prefers-reduced-motion:reduce){.hero-art .hero-yacht-video{display:none!important}.hero-art .hero-yacht-image,.hero-art.is-playing .hero-yacht-image{opacity:.32!important}}
 
-/* Official retirement crest replaces the legacy BC navigation placeholder. */
-.site-header .official-crest-link{display:flex;align-items:center;justify-content:center;flex-shrink:0;min-width:85px;min-height:55px;line-height:1}
-.site-header .official-crest-header{display:block;width:95px;max-height:70px;height:auto;object-fit:contain;filter:drop-shadow(0 3px 8px rgba(0,0,0,.32))}
-.site-header .official-crest-link:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
-@media(max-width:800px){.site-header .official-crest-link{min-width:70px}.site-header .official-crest-header{width:75px;max-height:56px}}
-@media(max-width:470px){.site-header .official-crest-link{min-width:65px}.site-header .official-crest-header{width:70px;max-height:54px}}
+
+/* Brand hierarchy: elegant name in navigation, full official crest centered in the hero. */
+.site-header .brand-wordmark{display:inline-flex;align-items:baseline;gap:.19em;flex-shrink:0;white-space:nowrap;font-family:'Cormorant Garamond',serif;font-size:clamp(27px,2.15vw,35px);font-weight:500;letter-spacing:-.035em;line-height:1.05;color:var(--cream)}
+.site-header .brand-wordmark em{font-weight:400;color:var(--gold-light)}
+.site-header .brand-wordmark:focus-visible{outline:2px solid var(--gold);outline-offset:5px}
+.hero .hero-logo-title{position:relative;display:flex;align-items:center;justify-content:center;width:fit-content;max-width:100%;font-size:0;line-height:0;margin:15px auto 12px;isolation:isolate}
+.hero .hero-logo-title::before{content:"";position:absolute;inset:5% -16%;border-radius:50%;background:radial-gradient(ellipse,rgba(6,16,19,.48) 0%,rgba(9,22,21,.25) 47%,transparent 74%);filter:blur(14px);z-index:-1;pointer-events:none}
+.hero .hero-official-crest{display:block;width:clamp(280px,33vw,495px);max-width:min(80vw,495px);height:auto;object-fit:contain;filter:drop-shadow(0 15px 24px rgba(0,0,0,.42))}
+@media(max-width:800px){.site-header .brand-wordmark{font-size:clamp(24px,3.6vw,30px)}.hero .hero-official-crest{width:min(60vw,380px);max-width:100%}}
+@media(max-width:470px){.site-header .brand-wordmark{font-size:clamp(22px,5.3vw,26px);gap:.13em}.hero .hero-official-crest{width:min(79vw,330px)}.hero .ornament{margin:17px 0}.hero .hero-logo-title{margin:10px auto 8px}.hero .gold-line{margin:0 auto 18px}.hero .hero-copy{margin-bottom:24px}}
+@media(max-width:370px){.site-header{padding-left:13px;padding-right:13px}.site-header .brand-wordmark{font-size:21px}.site-header nav{gap:9px}.site-header nav a{font-size:8px}.hero .hero-official-crest{width:80vw}}
+
+
+/* V8 yacht-hero sparkle overlay: decorative, GPU-light twinkles above the video,
+   never above content, with reduced-motion and small-screen safeguards. */
+.hero-art .hero-sparkles{position:absolute;inset:0;z-index:3;overflow:hidden;pointer-events:none}
+.hero-art .hero-sparkle{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);opacity:.16;transform:translate3d(0,0,0) scale(.75);animation:hero-sparkle-shimmer var(--d) ease-in-out var(--delay) infinite}
+.hero-art .hero-sparkle::before,.hero-art .hero-sparkle::after{content:"";position:absolute;left:50%;top:50%;border-radius:99px;background:linear-gradient(180deg,transparent 0%,#f7e1b0 35%,#fff3d6 50%,#d6aa63 65%,transparent 100%);box-shadow:0 0 10px rgba(245,219,173,.32);transform:translate(-50%,-50%)}
+.hero-art .hero-sparkle-cross::before{width:2px;height:100%}
+.hero-art .hero-sparkle-cross::after{width:100%;height:2px;background:linear-gradient(90deg,transparent 0%,#f7e1b0 35%,#fff3d6 50%,#d6aa63 65%,transparent 100%)}
+.hero-art .hero-sparkle-dot::before{width:100%;height:100%;border-radius:50%;background:#f7e1b0;box-shadow:0 0 9px 2px rgba(245,219,173,.4)}
+.hero-art .hero-sparkle-dot::after{display:none}
+@keyframes hero-sparkle-shimmer{
+  0%,100%{opacity:.13;transform:translate3d(0,0,0) scale(.65)}
+  38%{opacity:.75;transform:translate3d(2px,var(--float),0) scale(1)}
+  55%{opacity:.46;transform:translate3d(4px,calc(var(--float) * .65),0) scale(.85)}
+  78%{opacity:.20;transform:translate3d(-2px,-2px,0) scale(.72)}
+}
+@media(max-width:650px){.hero-art .hero-sparkles{opacity:.75}.hero-art .hero-sparkle:nth-child(4n){display:none}}
+@media(prefers-reduced-motion:reduce){.hero-art .hero-sparkle{animation:none!important;opacity:.38;transform:none}}
