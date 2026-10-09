@@ -48,3 +48,38 @@ You may update `max_guests`, set `is_active=false` to revoke a code, and delete 
 ## Shared entry codes
 
 Shared event entry codes can contain 8–16 alphanumeric characters. They are stored only as uppercase SHA-256 hashes in Supabase, never in the GitHub repository. A shared invitation must have `is_shared = true` on `retirement_invitations`. Shared RSVPs remain separate by normalized email; individual invitation codes retain their one-response-per-invitation behavior. Per-requester code verification is throttled to 12 attempts per 10 minutes. Apply the `shared_invitation_codes_individual_rsvps_and_unlock_throttle` Supabase migration before deploying this version. To rotate the shared entry code, deactivate the old invitation row and insert a new hashed code.
+
+
+## RSVP transactional email notifications (staged / activation required)
+
+An RSVP is committed to Supabase first. A database trigger queues two independent delivery jobs:
+a notice to **both administrators** and a confirmation to the guest's submitted email.
+A changed response sends an updated notice; an identical resubmission does not create
+more mail. Acceptances and declines both receive acknowledgements.
+
+1. Create or connect a Resend account, verify the sending domain using the provider's
+   DNS instructions (SPF/DKIM; DMARC recommended), and issue a sending API key.
+2. In Supabase project vzzcksexvopgowwkggau, apply the SQL migration
+   migrations/20261009_rsvp_email_outbox.sql using the migration interface.
+   Do not reapply the old schema.sql file.
+3. Configure **server-side encrypted** environment variables for production on Vercel:
+   - RESEND_API_KEY: the Resend API key.
+   - RSVP_EMAIL_FROM: a sender address on your verified domain.
+   - RSVP_ADMIN_EMAILS: two distinct administrator addresses separated by a comma.
+   - CRON_SECRET: at least 32 random characters, for Vercel Cron authentication.
+4. Deploy preview and test first: admin notice to both inboxes, guest acceptance and
+   decline confirmation, update notice, duplicate submission, and failure/retry.
+5. The RSVP API schedules background delivery with @vercel/functions waitUntil only
+   after Supabase commits. A protected daily UTC Vercel Cron (0 10 * * *) retries
+   pending jobs. This frequency is compatible with the Vercel Hobby plan.
+6. Outbox jobs are attempted up to five times with exponential backoff. Resend requests
+   have stable idempotency keys. A successful provider response is not a guarantee that
+   the recipient inbox accepted or displayed the email.
+7. The retry endpoint is routable without an invitation session but requires CRON_SECRET
+   in its bearer authorization header; it never exposes guest records. No keys should
+   be committed to GitHub or exposed in the client.
+
+Guest confirmations intentionally omit the private location, marina, address and invitation
+code. The guest must enter their code at the website to view directions. If the sending
+configuration is incomplete, the RSVP still saves and new email jobs remain pending.
+**Do not describe delivery as active until an end-to-end acceptance test has passed.**
