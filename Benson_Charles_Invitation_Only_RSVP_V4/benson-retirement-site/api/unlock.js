@@ -13,7 +13,19 @@ export default async function handler(req, res) {
   try {
     const body=typeof req.body==='string'?JSON.parse(req.body):req.body;
     const code=String(body?.invitationCode||'').trim().toUpperCase().replace(/[\s-]/g,'');
-    if (!/^[A-F0-9]{32}$/.test(code)) return res.status(400).json({error:'Please check the code provided with your invitation.'});
+    if (!(/^[A-Z0-9]{8,16}$/.test(code) || /^[A-F0-9]{32}$/.test(code)))
+      return res.status(400).json({error:'Please check the code provided with your invitation.'});
+    // Durable throttling protects short shared entry codes from online guessing.
+    // Hash the requester identity with the server secret; no IP is stored in Supabase.
+    const forwarded=String(req.headers['x-vercel-forwarded-for']||req.headers['x-real-ip']||req.headers['x-forwarded-for']||req.socket?.remoteAddress||'unavailable').split(',')[0].trim();
+    const fingerprint=createHash('sha256').update(process.env.RSVP_SESSION_SECRET+':'+forwarded).digest('hex');
+    const limitResponse=await fetch(`${url.replace(/[/]$/,'')}/rest/v1/rpc/check_retirement_unlock_limit`,{
+      method:'POST',headers:{apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json'},
+      body:JSON.stringify({p_fingerprint:fingerprint}),signal:AbortSignal.timeout(8000),cache:'no-store'
+    });
+    if(!limitResponse.ok){console.error('Unlock limit check error:',limitResponse.status);return res.status(503).json({error:'Private invitation verification is temporarily unavailable.'});}
+    const allowed=await limitResponse.json();
+    if(allowed!==true){res.setHeader('Retry-After','600');return res.status(429).json({error:'Too many verification attempts. Please try again in 10 minutes.'});}
     const codeHash=createHash('sha256').update(code).digest('hex');
     const params=new URLSearchParams({select:'id,max_guests',code_hash:`eq.${codeHash}`,is_active:'eq.true',limit:'1'});
     const response=await fetch(`${url.replace(/\/$/,'')}/rest/v1/retirement_invitations?${params}`,{

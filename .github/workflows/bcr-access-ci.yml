@@ -1,0 +1,25 @@
+name: Verify private invitation access
+on:
+  push:
+    branches: [feature/shared-event-entry-code]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install and test private invitation backend
+        working-directory: Benson_Charles_Invitation_Only_RSVP_V4/benson-retirement-site
+        run: |
+          npm install --ignore-scripts
+          npm test
+          node --check api/unlock.js
+          node --check api/rsvp.js
+          node --check lib/session.js
+          node --check access.js

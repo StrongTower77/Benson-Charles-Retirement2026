@@ -43,3 +43,8 @@ You may update `max_guests`, set `is_active=false` to revoke a code, and delete 
 - RSVP closes at the end of December 5, 2026, America/New_York (the server begins rejecting requests December 6 at midnight EST).
 - The 305-824-7777 phone number is for questions, as supplied in the new Details document.
 - RSVP codes supplied via query links are removed from the browser address bar after prefilling the input to reduce accidental sharing.
+
+
+## Shared entry codes
+
+Shared event entry codes can contain 8–16 alphanumeric characters. They are stored only as uppercase SHA-256 hashes in Supabase, never in the GitHub repository. A shared invitation must have `is_shared = true` on `retirement_invitations`. Shared RSVPs remain separate by normalized email; individual invitation codes retain their one-response-per-invitation behavior. Per-requester code verification is throttled to 12 attempts per 10 minutes. Apply the `shared_invitation_codes_individual_rsvps_and_unlock_throttle` Supabase migration before deploying this version. To rotate the shared entry code, deactivate the old invitation row and insert a new hashed code.

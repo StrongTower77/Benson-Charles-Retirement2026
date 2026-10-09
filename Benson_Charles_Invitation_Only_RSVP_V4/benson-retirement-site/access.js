@@ -5,7 +5,7 @@ const accessButton=document.getElementById('unlock-button');
 accessForm.addEventListener('submit',async e=>{
  e.preventDefault();accessStatus.textContent='';
  const code=accessForm.elements.invitationCode.value.trim().toUpperCase().replace(/[\s-]/g,'');
- if(!/^[A-F0-9]{32}$/.test(code)){accessStatus.textContent='Please enter the 32-character code from your invitation.';accessForm.elements.invitationCode.focus();return;}
+ if(!(/^[A-Z0-9]{8,16}$/.test(code)||/^[A-F0-9]{32}$/.test(code))){accessStatus.textContent='Please enter the code provided with your invitation.';accessForm.elements.invitationCode.focus();return;}
  accessButton.disabled=true;accessButton.textContent='Verifying invitation…';
  try{
   const response=await fetch('/api/unlock',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({invitationCode:code})});
