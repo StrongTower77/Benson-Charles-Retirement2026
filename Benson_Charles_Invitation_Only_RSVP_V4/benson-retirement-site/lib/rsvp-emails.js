@@ -94,7 +94,7 @@ export async function processRsvpEmailQueue({maxBatches=1}={}){
       catch(err){error=err?.message?.startsWith('provider_')?err.message:'delivery_failure';}
       try{
         await databaseRpc('complete_retirement_email_outbox',{
-          p_id:job.id,p_success:Boolean(id),p_provider_id:id,p_error_code:error
+          p_id:job.id,p_attempt:job.attempts,p_success:Boolean(id),p_provider_id:id,p_error_code:error
         });
         if(id)sent++;
       }catch(err){console.error('RSVP email completion error:',err?.message?.replace(/[^a-z0-9_]/gi,'').slice(0,70));}
