@@ -58,11 +58,15 @@ create or replace function public.claim_retirement_email_outbox(p_limit integer 
 returns setof public.retirement_email_outbox
 language plpgsql security invoker set search_path = public as $$
 begin
+  -- An expired fifth delivery lease must not be claimed indefinitely.
+  update public.retirement_email_outbox
+  set status='failed',leased_until=null,last_error_code='lease_expired'
+  where status='sending' and attempts>=5 and leased_until<now();
   return query
   with due as (
     select id from public.retirement_email_outbox
-    where (status='pending' and next_attempt_at<=now())
-       or (status='sending' and leased_until<now())
+    where (status='pending' and next_attempt_at<=now() and attempts<5)
+       or (status='sending' and attempts<5 and leased_until<now())
     order by created_at, id
     for update skip locked
     limit least(greatest(p_limit,1),12)
@@ -78,7 +82,7 @@ revoke all on function public.claim_retirement_email_outbox(integer) from public
 grant execute on function public.claim_retirement_email_outbox(integer) to service_role;
 
 create or replace function public.complete_retirement_email_outbox(
-  p_id uuid, p_success boolean, p_provider_id text default null, p_error_code text default null
+  p_id uuid, p_attempt integer, p_success boolean, p_provider_id text default null, p_error_code text default null
 ) returns void language plpgsql security invoker set search_path = public as $$
 begin
   update public.retirement_email_outbox
@@ -90,10 +94,10 @@ begin
       next_attempt_at=case when p_success then now()
         else now()+(power(2,least(attempts,6))*interval '1 minute') end,
       leased_until=null
-  where id=p_id and status='sending';
+  where id=p_id and status='sending' and attempts=p_attempt;
 end; $$;
-revoke all on function public.complete_retirement_email_outbox(uuid,boolean,text,text) from public, anon, authenticated;
-grant execute on function public.complete_retirement_email_outbox(uuid,boolean,text,text) to service_role;
+revoke all on function public.complete_retirement_email_outbox(uuid,integer,boolean,text,text) from public, anon, authenticated;
+grant execute on function public.complete_retirement_email_outbox(uuid,integer,boolean,text,text) to service_role;
 
 -- Dedicated server-side RSVP submission throttle (kept separate from unlock throttle).
 -- The API hashes invitation + requester IP with its session secret; only hashes persist.
