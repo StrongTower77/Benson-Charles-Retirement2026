@@ -34,3 +34,9 @@ test('responsive emphasis is present without changing structural CSS',()=>{
   assert.match(css,/@media\(max-width:650px\)/);
   assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length);
 });
+
+test('details and directions heading stays together at desktop and mobile widths',()=>{
+  assert.match(css,/\.info \.section-intro #info-title\s*\{[^}]*white-space:nowrap/s);
+  assert.match(css,/\.info \.section-intro #info-title\s*\{[^}]*font-size:clamp\(24px,5\.6vw,59px\)/s);
+  assert.match(css,/@media\(max-width:470px\)\s*\{\s*\.info \.section-intro #info-title\s*\{\s*font-size:clamp\(24px,7vw,32px\)/s);
+});
