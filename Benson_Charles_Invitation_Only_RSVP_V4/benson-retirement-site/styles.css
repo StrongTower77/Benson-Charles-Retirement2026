@@ -53,3 +53,24 @@
 }
 @media(max-width:650px){.hero-art .hero-sparkles{opacity:.75}.hero-art .hero-sparkle:nth-child(4n){display:none}}
 @media(prefers-reduced-motion:reduce){.hero-art .hero-sparkle{animation:none!important;opacity:.38;transform:none}}
+
+
+/* Organizer-approved 2026-10-13 typographic and copy refinements.
+   Keep the yacht video, original crest and sparkle overlay as separate layers. */
+.hero .hero-opening{font-size:clamp(12px,1.28vw,16px);line-height:1.65;font-weight:700;letter-spacing:clamp(1.5px,.19vw,2.8px);color:#f9dfae;text-shadow:0 2px 14px rgba(0,0,0,.68);margin:0 auto}
+.hero .hero-subhead{font-size:clamp(30px,3.8vw,44px);color:#fff4e2;text-shadow:0 2px 14px rgba(0,0,0,.6);margin-bottom:17px}
+.hero .hero-subhead strong{font-weight:700;color:#f7d9a4}
+.hero .hero-copy-feature{max-width:760px;font-size:clamp(17px,1.8vw,21px);font-weight:700;line-height:1.55;letter-spacing:.004em;color:#fff0d3;text-wrap:balance;text-shadow:0 2px 14px rgba(0,0,0,.7)}
+.hero .hero-copy-feature strong{font-weight:700}
+.invitation .section-intro .intro-copy{font-size:clamp(25px,2.7vw,32px);line-height:1.32;max-width:730px;margin-left:auto;margin-right:auto}
+.invitation .section-intro .invite-lead{font-weight:600;color:#4b503f}
+.invitation .rsvp-card-head .rsvp-prompt{font-size:13px;font-weight:700;letter-spacing:2.4px;color:#825d29}
+.info .attire-details{line-height:1.85}
+.info .attire-details strong{color:var(--gold-light);font-weight:700}
+.info .attire-details span{display:inline-block;margin-top:8px}
+@media(max-width:650px){
+  .hero .hero-opening{font-size:12px;letter-spacing:1.35px;line-height:1.55}
+  .hero .hero-subhead{font-size:clamp(30px,7.4vw,36px);margin-bottom:14px}
+  .hero .hero-copy-feature{font-size:clamp(16px,4.15vw,18px);line-height:1.48;max-width:540px;margin-bottom:24px;text-wrap:pretty}
+  .invitation .section-intro .intro-copy{font-size:clamp(24px,6vw,28px)}
+}
