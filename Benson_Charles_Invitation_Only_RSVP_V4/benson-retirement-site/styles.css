@@ -74,3 +74,15 @@
   .hero .hero-copy-feature{font-size:clamp(16px,4.15vw,18px);line-height:1.48;max-width:540px;margin-bottom:24px;text-wrap:pretty}
   .invitation .section-intro .intro-copy{font-size:clamp(24px,6vw,28px)}
 }
+
+
+/* Keep the Page 3 title together without changing headings on the other pages. */
+.info .section-intro #info-title{
+  font-size:clamp(24px,5.6vw,59px);
+  line-height:1.05;
+  letter-spacing:-.035em;
+  white-space:nowrap;
+}
+@media(max-width:470px){
+  .info .section-intro #info-title{font-size:clamp(24px,7vw,32px)}
+}
