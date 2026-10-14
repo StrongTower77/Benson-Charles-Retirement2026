@@ -1,4 +1,5 @@
 import { readSession, sameOrigin } from '../lib/session.js';
+import { createAcceptedCookie, clearAcceptedCookie } from '../lib/acceptance.js';
 import { createHash } from 'node:crypto';
 import { waitUntil } from '@vercel/functions';
 import { emailSettings, processRsvpEmailQueue } from '../lib/rsvp-emails.js';
@@ -41,12 +42,15 @@ export default async function handler(req,res){
   if(!response.ok){console.error('RSVP database error status',response.status);return res.status(503).json({error:'Could not save your RSVP. Please try again.'});}
   const result=await response.json();
   if(!result?.ok)return res.status(400).json({error:result?.reason==='guest_limit'?'This invitation does not allow that many attendees. Please adjust your guest count.':'Your invitation is no longer active. Contact the organizer for assistance.'});
-  // RSVP is already committed. Delivery is best-effort in the background; a provider
-  // outage never changes the saved RSVP outcome. Pending jobs are retried by cron.
+  // Only a committed acceptance issues a signed respondent-bound ticket.
+  // Declining clears any previously granted Page Three access in this browser.
+  res.setHeader('Set-Cookie',attendance==='yes'?createAcceptedCookie(session,email):clearAcceptedCookie());
+  // The RSVP and authorization state are already committed. Email delivery is
+  // best-effort and must never affect the Page Three entitlement or the response.
   if(emailSettings()){
-   try{waitUntil(processRsvpEmailQueue().catch(err=>console.error('RSVP mail queue:',err?.name||'error')));}
-   catch(err){console.error('RSVP email scheduling error',err?.name||'unknown');}
+    try{waitUntil(processRsvpEmailQueue().catch(err=>console.error('RSVP mail queue:',err?.name||'error')));}
+    catch(err){console.error('RSVP email scheduling error',err?.name||'unknown');}
   }
-  return res.status(200).json({ok:true});
+  return res.status(200).json({ok:true,detailsUnlocked:attendance==='yes'});
  }catch(err){console.error('RSVP error',err?.name);return res.status(503).json({error:'Unable to process RSVP right now.'});}
 }

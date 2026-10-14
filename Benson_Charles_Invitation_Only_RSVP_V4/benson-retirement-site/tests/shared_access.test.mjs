@@ -46,7 +46,9 @@ test('short mixed-character shared access code is normalized, hashed, and sessio
   assert.equal(lookupHash,'eq.'+createHash('sha256').update('WLYB2K26').digest('hex'));
   assert.equal(throttleChecked,true);
   assert.equal(lookups,1);
-  assert.match(res.headers['set-cookie'],/HttpOnly; Secure; SameSite=Lax/);
+  assert.ok(Array.isArray(res.headers['set-cookie']));
+  assert.match(res.headers['set-cookie'].join(';'),/HttpOnly; Secure; SameSite=Lax/);
+  assert.match(res.headers['set-cookie'][1],/bc_accepted_rsvp=;.*Max-Age=0/);
  }finally{globalThis.fetch=originalFetch;restore();}
 });
 

@@ -43,7 +43,10 @@ export function buildRsvpEmail(job,config){
   const txt=['Benson Charles Retirement Celebration','','Hello '+name+',','',
     response,yes?'Party size: '+count:'',updated?'This email confirms your updated RSVP.':'Thank you for responding.',
     'Celebration date: Saturday, December 26, 2026.','Time: 6:00 PM Eastern Time.',
-    'Event information is available only after entering your invitation code at '+EVENT_URL,
+    yes?'Boarding details are on Page 3 of the invitation website only after your accepted RSVP is verified.':'A declined RSVP does not unlock boarding details.',
+    'Invitation website: '+EVENT_URL,
+    yes?'If you need to unlock a new session, enter your invitation code and resubmit your acceptance using the same email address. The email itself never grants Page 3 access.':'If your plans change before the RSVP deadline, return to the invitation website and submit an accepted RSVP.',
+
     'If you did not submit this RSVP, please contact the event organizer.'].filter(Boolean).join('\n');
   const html='<div style="'+baseStyle+';max-width:600px;margin:auto;padding:28px;background:#faf7ef">'+
     '<p style="color:#9f7a40;letter-spacing:2px;font-size:12px">A PRIVATE CELEBRATION</p>'+
@@ -52,7 +55,8 @@ export function buildRsvpEmail(job,config){
     (yes?'<p><strong>Party size:</strong> '+esc(count)+'</p>':'')+
     '<p>'+esc(updated?'Your updated RSVP is confirmed.':'Thank you for responding.')+'</p>'+
     '<p><strong>Date:</strong> Saturday, December 26, 2026<br><strong>Time:</strong> 6:00 PM Eastern Time</p>'+
-    '<p>To review the private event details, <a href="'+EVENT_URL+'" style="color:#946f37">open the invitation website</a> and enter your invitation code.</p>'+
+    '<p>'+(yes?'Page 3 (Details &amp; Directions) is available only once your acceptance is saved and verified, in your current invitation session. If you enter the code again later, resubmit your acceptance with the same email to unlock Page 3.':'A declined RSVP does not unlock the private boarding details. You can update your answer before the RSVP deadline.')+'</p>'+
+    '<p><a href="'+EVENT_URL+'" style="color:#946f37">Open the private invitation website</a>.</p>'+
     '<p style="font-size:12px;color:#637267">If you did not submit this RSVP, please contact the event organizer.</p></div>';
   return {from:'Benson Charles Retirement <'+config.from+'>',to:[s.email],subject,text:txt,html};
 }

@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { createSession, COOKIE_NAME, SESSION_SECONDS, sameOrigin } from '../lib/session.js';
+import { clearAcceptedCookie } from '../lib/acceptance.js';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -36,7 +37,8 @@ export default async function handler(req, res) {
     if(!Array.isArray(rows)||rows.length!==1||!Number.isInteger(rows[0].max_guests))
       return res.status(401).json({error:'We could not verify that code. Please check your invitation or contact the organizer.'});
     const token=createSession({codeHash,maxGuests:rows[0].max_guests});
-    res.setHeader('Set-Cookie',`${COOKIE_NAME}=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_SECONDS}`);
+    // A fresh entry starts at Pages 1 and 2, even on a previously used shared-code browser.
+    res.setHeader('Set-Cookie',[`${COOKIE_NAME}=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_SECONDS}`,clearAcceptedCookie()]);
     return res.status(200).json({ok:true});
   } catch(error){console.error('Invitation access error:',error?.name);return res.status(503).json({error:'Unable to verify your invitation right now. Please try again.'});}
 }

@@ -40,7 +40,8 @@ test('valid RSVP checks independent rate limit before committed DB write',async(
     const res=mockResponse();
     await rsvp(mockRequest(),res);
     assert.equal(res.statusCode,200);
-    assert.deepEqual(res.body,{ok:true});
+    assert.deepEqual(res.body,{ok:true,detailsUnlocked:true});
+    assert.match(res.headers['set-cookie'],/^bc_accepted_rsvp=v1\./);
     assert.equal(calls.length,2);
     assert.match(calls[0],/check_retirement_rsvp_submit_limit/);
     assert.match(calls[1],/submit_retirement_rsvp/);

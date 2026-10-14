@@ -1,6 +1,6 @@
 # Benson Charles Retirement — Invitation-Only RSVP Site
 
-Three scrollable pages/sections: Announcement, Invitation & RSVP, Event Information.
+Two initial scrollable sections (Announcement; Invitation & RSVP). Page 3 (Details & Directions) is served separately **only after a committed, currently accepted RSVP**, bound to the email submitted in the active session.
 
 **Target custom domain:** `www.bensoncharlesretirement.com` (not yet connected).
 
@@ -29,12 +29,12 @@ You may update `max_guests`, set `is_active=false` to revoke a code, and delete 
 
 ## Security and launch checklist
 
-- The backend validates invitation-code hashes and guest limits; the database applies atomic upsert keyed to the invitation. A second response with the same code **replaces** the earlier response, preventing double counting.
+- The backend validates invitation-code hashes and guest limits; the database applies atomic upsert keyed to the invitation. For shared codes, each normalized email has its own current RSVP; for individual codes one invitation has one current response.
 - Anyone with a valid code can overwrite its RSVP; share codes only with intended recipients. No email identity verification is provided. For stricter security, add email OTP and invitation-email binding.
 - Add managed rate limiting / bot protection (e.g. Cloudflare Turnstile and Vercel WAF) before widely sharing the site. Current honeypot alone does not prevent API abuse.
 - Check event capacity, boarding time, maximum guests per invitation, and deadline (December 5, 2026, Miami time).
-- No automated email is sent; on-screen acknowledgement only. Confirm before sending out invitations.
-- This code has not been deployed, and no live Supabase connection has been configured. Test against a real Supabase project before declaring the site live.
+- Automated RSVP email is still in draft PR #8 and must not be treated as live until approved and end-to-end verified.
+- The protected site is deployed; test any new email feature on a preview with mocked guest data before production release.
 
 ## V3 content update (October 8, 2026)
 
@@ -48,7 +48,6 @@ You may update `max_guests`, set `is_active=false` to revoke a code, and delete 
 ## Shared entry codes
 
 Shared event entry codes can contain 8–16 alphanumeric characters. They are stored only as uppercase SHA-256 hashes in Supabase, never in the GitHub repository. A shared invitation must have `is_shared = true` on `retirement_invitations`. Shared RSVPs remain separate by normalized email; individual invitation codes retain their one-response-per-invitation behavior. Per-requester code verification is throttled to 12 attempts per 10 minutes. Apply the `shared_invitation_codes_individual_rsvps_and_unlock_throttle` Supabase migration before deploying this version. To rotate the shared entry code, deactivate the old invitation row and insert a new hashed code.
-
 
 ## RSVP transactional email notifications (staged / activation required)
 
@@ -84,6 +83,15 @@ limit of 12 attempts in 10 minutes, independent of the invitation unlock throttl
 The migration and API change must deploy together, otherwise submissions fail closed.
 
 Guest confirmations intentionally omit the private location, marina, address and invitation
-code. The guest must enter their code at the website to view directions. If the sending
+code. An acceptance email does NOT grant Page 3 access. The guest's accepted RSVP must be verified
+on the website; a newly entered invitation code resets the respondent's session, so they must
+resubmit acceptance with the same email to unlock Page 3 again. A decline never unlocks directions. If the sending
 configuration is incomplete, the RSVP still saves and new email jobs remain pending.
 **Do not describe delivery as active until an end-to-end acceptance test has passed.**
+
+### Compatibility with Page 3 gating
+
+- After the database RSVP upsert succeeds, `api/rsvp.js` sets/clears the existing signed accepted-respondent cookie and returns `detailsUnlocked`. Email dispatch is scheduled **after** that cookie is set; failures never roll back the RSVP or modify this authorization response.
+- The actual Page 3 HTML and docking map remain server-protected on each request; email contents and links disclose no private address or boarding map. A reply email is not an authentication factor.
+- `middleware.js` allows only the cron route through the session gate; it still verifies `CRON_SECRET` itself, while `/api/accepted-details`, `/lib`, and the docking map retain the current guard.
+- PR #8 stays draft until a separately approved delivery smoke test. Do not merge on successful mocked tests alone.

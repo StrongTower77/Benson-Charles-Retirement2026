@@ -1,8 +1,37 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "headers": [
-    {"source": "/", "headers": [{"key": "Cache-Control", "value": "no-store"}, {"key": "X-Robots-Tag", "value": "noindex, nofollow"}]},
-    {"source": "/event(.*)", "headers": [{"key": "Cache-Control", "value": "private, no-store"}, {"key": "X-Robots-Tag", "value": "noindex, nofollow"}]}
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/event(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
   ],
-  "crons": [{"path":"/api/rsvp-email-drain","schedule":"0 10 * * *"}]
+  "crons": [
+    {
+      "path": "/api/rsvp-email-drain",
+      "schedule": "0 10 * * *"
+    }
+  ]
 }
