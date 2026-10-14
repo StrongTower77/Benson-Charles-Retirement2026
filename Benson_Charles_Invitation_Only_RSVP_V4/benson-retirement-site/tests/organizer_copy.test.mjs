@@ -42,9 +42,10 @@ test('details and directions heading stays together at desktop and mobile widths
 });
 
 
-test('Page 2 omits the eyebrow and maintains independent spaced title lines',()=>{
+test('Page 2 uses the approved question instead of page numbering and keeps heading spacing',()=>{
   const section=html.match(/<section aria-labelledby="invite-title"[\s\S]*?<div class="invitation-grid">/)?.[0]||'';
   assert.doesNotMatch(section,/Page Two\s*·\s*You.re invited/);
+  assert.match(section,/<div class="section-intro"><p class="eyebrow">Will we see you there\?<\/p><div class="ornament">/);
   assert.match(section,/<h2 id="invite-title">A Special Evening<em>of Celebration<\/em><\/h2>/);
   assert.match(css,/\.invitation \.section-intro #invite-title\{line-height:1\.12\}/);
   assert.match(css,/\.invitation \.section-intro #invite-title em\{display:block;margin-top:\.12em\}/);
