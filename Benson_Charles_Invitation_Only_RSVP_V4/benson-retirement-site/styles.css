@@ -132,3 +132,87 @@
 @media(prefers-reduced-motion:reduce){
  .invitation .holiday-bulbs circle,.invitation .holiday-tree-lights circle,.invitation .holiday-tree-star{animation:none!important;opacity:.85;transform:none}
 }
+
+
+/* Shared accessible day/night appearance. The media-backed yacht hero remains
+   a cinematic dark photo surface in both modes to preserve official crest legibility. */
+html[data-theme="dark"]{color-scheme:dark}
+html[data-theme="light"]{color-scheme:light}
+.site-header{gap:clamp(8px,1vw,16px)}
+.site-header .theme-toggle{flex-shrink:0}
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:8px 12px;border:1px solid rgba(216,182,122,.65);background:rgba(11,30,22,.5);color:var(--gold-light);border-radius:99px;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;letter-spacing:.7px;white-space:nowrap;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.theme-toggle:hover{background:rgba(216,182,122,.17);border-color:var(--gold-light)}
+.theme-toggle:focus-visible{outline:3px solid #d8b67a;outline-offset:3px}
+.theme-toggle-icon{display:inline-block;font-size:16px;line-height:1}
+@media(max-width:1050px){.site-header .theme-toggle-label{display:none}.site-header .theme-toggle{min-width:37px;padding:7px}.site-header nav{gap:clamp(8px,2vw,26px)}}
+@media(max-width:470px){.site-header{gap:7px}.site-header nav{gap:8px}.site-header .theme-toggle{min-width:32px;min-height:34px;padding:5px}.site-header .theme-toggle-icon{font-size:15px}}
+@media(max-width:370px){.site-header .brand-wordmark{font-size:19px}.site-header nav a{font-size:7.5px}}
+
+/* Night palette: dark event introduction, card and interactive RSVP controls. */
+html[data-theme="dark"] .invitation{background:linear-gradient(135deg,#14251e,#1a2e25 54%,#11201a);color:#f7ecda}
+html[data-theme="dark"] .invitation .eyebrow{color:#e8c58a}
+html[data-theme="dark"] .invitation .section-intro h2{color:#fff0d7}
+html[data-theme="dark"] .invitation .section-intro h2 em{color:#e4bf80}
+html[data-theme="dark"] .invitation .intro-copy{color:#d4dcca}
+html[data-theme="dark"] .invitation .invite-lead{color:#f3d7a2}
+html[data-theme="dark"] .invitation .rsvp-card{background:#1b3027;color:#f9f0dd;border-color:#aa905a;box-shadow:0 15px 42px rgba(0,0,0,.24)}
+html[data-theme="dark"] .invitation .rsvp-card h3{color:#fff1df}
+html[data-theme="dark"] .invitation .rsvp-card h3 em{color:#e7c58a}
+html[data-theme="dark"] .invitation .rsvp-card-head>p:last-child{color:#d7dfd1}
+html[data-theme="dark"] .invitation .rsvp-card .eyebrow{color:#efca8a}
+html[data-theme="dark"] .invitation .rsvp-card form label,
+html[data-theme="dark"] .invitation .rsvp-card legend{color:#f5eddc}
+html[data-theme="dark"] .invitation .rsvp-card input:not([type=radio]),
+html[data-theme="dark"] .invitation .rsvp-card select,
+html[data-theme="dark"] .invitation .rsvp-card textarea{color:#f7f0df;background:#12251c;border-color:#8a9a84;outline-color:#e8c58a}
+html[data-theme="dark"] .invitation .rsvp-card input::placeholder,
+html[data-theme="dark"] .invitation .rsvp-card textarea::placeholder{color:#bac8b7}
+html[data-theme="dark"] .invitation .rsvp-card .attendance-option>span{color:#eee5d4;background:#183025;border-color:#83937c}
+html[data-theme="dark"] .invitation .rsvp-card .attendance-option input:checked+span{background:#3d593f;color:#fff5e1;border-color:#e3c284}
+html[data-theme="dark"] .invitation .rsvp-card .verified-note{color:#ebf3e6;background:#264732;border-color:#6b9c72}
+html[data-theme="dark"] .invitation .rsvp-card .privacy,
+html[data-theme="dark"] .invitation .rsvp-card .optional{color:#c0cbbd}
+html[data-theme="dark"] .invitation .rsvp-card .form-status{color:#ffd4bd}
+html[data-theme="dark"] .invitation .rsvp-card .success-message p{color:#d7dfd1}
+html[data-theme="dark"] .invitation .rsvp-card .text-btn{color:#f5d59f}
+html[data-theme="dark"] .invitation .page-count{color:#efce96}
+html[data-theme="dark"] .invitation .page-count span{color:#bdc6b7}
+html[data-theme="dark"] .invitation .holiday-garland{opacity:.9}
+
+/* Day palette: warm paper surfaces, deep green print and legible event details. */
+html[data-theme="light"] body{background:#f7f0e4;color:#20372e}
+html[data-theme="light"] .site-header{background:rgba(250,245,235,.97);border-bottom-color:#b9a37c}
+html[data-theme="light"] .site-header .brand-wordmark{color:#20372e}
+html[data-theme="light"] .site-header .brand-wordmark em{color:#845f2b}
+html[data-theme="light"] .site-header nav a{color:#344b3e}
+html[data-theme="light"] .site-header nav a.active,
+html[data-theme="light"] .site-header nav a:hover,
+html[data-theme="light"] .header-rsvp{color:#82591e!important}
+html[data-theme="light"] .theme-toggle{background:#fffaf0;color:#284235;border-color:#8c7045}
+html[data-theme="light"] .theme-toggle:hover{background:#eee0c7}
+html[data-theme="light"] .invitation{background:linear-gradient(125deg,#f8f1e5,#eee3d2);color:#24352b}
+html[data-theme="light"] .info{background:#f4eddf;color:#243b30}
+html[data-theme="light"] .info .eyebrow{color:#785521}
+html[data-theme="light"] .info .section-intro h2{color:#20372e}
+html[data-theme="light"] .info .section-intro h2 em{color:#8c622b}
+html[data-theme="light"] .info .section-intro .intro-copy{color:#4b5a4e}
+html[data-theme="light"] .info-panel{background:#fffaf1;border-color:#c8af82}
+html[data-theme="light"] .info-panel h3{color:#274633}
+html[data-theme="light"] .info .info-block,html[data-theme="light"] .info .reminder{border-top-color:rgba(120,93,51,.28)}
+html[data-theme="light"] .info-block small,
+html[data-theme="light"] .reminder small{color:#79551f}
+html[data-theme="light"] .info-block strong{color:#22392f}
+html[data-theme="light"] .info-block p,
+html[data-theme="light"] .reminder p{color:#3d5143}
+html[data-theme="light"] .info .reminder>span{color:#8a6227}
+html[data-theme="light"] .info .reminder a{color:#75501a}
+html[data-theme="light"] .dock-map img{border-color:#b49b6e}
+html[data-theme="light"] .dock-map figcaption{color:#4d5e50}
+html[data-theme="light"] .info-actions a,
+html[data-theme="light"] .secondary-btn{color:#6d4c1d;border-color:#8f682c}
+html[data-theme="light"] .info-footer p{color:#6c4b24}
+html[data-theme="light"] .info-footer span{color:#485e4b}
+html[data-theme="light"] .site-footer{background:#eee4d3;color:#334e3b;border-color:#c0a677}
+html[data-theme="light"] .site-footer span{color:#7f5c27}
+
+/* Both schemes keep the hero footage and overlays unchanged for readability. */
