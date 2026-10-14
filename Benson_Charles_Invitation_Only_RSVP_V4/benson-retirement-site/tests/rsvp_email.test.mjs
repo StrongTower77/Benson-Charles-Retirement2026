@@ -27,6 +27,10 @@ test('guest accepts: sends to submitted address with date and private entrance, 
   assert.match(m.text,/2 attendees/);
   assert.match(m.text,/December 26, 2026/);
   assert.match(m.html,/benson-charles-retirement2k26\.vercel\.app/);
+  assert.match(m.text,/Page 3/);
+  assert.match(m.text,/resubmit your acceptance using the same email address/);
+  assert.match(m.html,/once your acceptance is saved and verified/);
+  assert.doesNotMatch(m.text+m.html,/\/api\/accepted-details|\/assets\/hyatt-docking-map\.png/);
   assert.doesNotMatch(m.text+m.html,/Hyatt|400 SE 2nd|Marina|WLYB2k26/i);
 });
 test('guest decline and RSVP update get appropriate confirmations',()=>{
@@ -35,6 +39,9 @@ test('guest decline and RSVP update get appropriate confirmations',()=>{
   assert.match(d.subject,/Update/);
   assert.match(d.text,/will not attend/);
   assert.doesNotMatch(d.text,/Party size:/);
+  assert.match(d.text,/does not unlock boarding details/);
+  assert.match(d.html,/A declined RSVP does not unlock the private boarding details/);
+  assert.doesNotMatch(d.text+d.html,/Hyatt|400 SE 2nd|Marina|WLYB2k26/i);
 });
 test('untrusted RSVP text is safely escaped in administrator HTML',()=>{
   const malicious='<img src=x onerror=alert(1)>';
