@@ -55,7 +55,7 @@ test('Page 2 uses the approved question instead of page numbering and keeps head
 
 
 test('festive decorations stay on Page 2, behind content and independent of RSVP behavior',()=>{
-  const invitation=html.match(/<section aria-labelledby="invite-title"[\s\S]*?<\/section><\/main>/)?.[0]||'';
+  const invitation=html.match(/<section aria-labelledby="invite-title"[\s\S]*?<\/section>\s*<\/main>/)?.[0]||'';
   assert.match(invitation,/class="holiday-garland" aria-hidden="true"/);
   assert.match(invitation,/class="holiday-tree" aria-hidden="true"/);
   assert.equal((invitation.match(/class="holiday-tree-star"/g)||[]).length,1);
