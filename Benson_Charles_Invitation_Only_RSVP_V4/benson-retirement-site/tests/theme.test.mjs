@@ -43,13 +43,13 @@ test('a theme preference is resolved before DOM load and stays readable without 
 test('toggle is usable by keyboard and click, changes labels, and persists both modes',()=>{
  const ui=simulate();ui.ready();
  assert.equal(ui.toggle.attrs['aria-label'],'Switch to light mode');
- assert.equal(ui.toggle.attrs['aria-pressed'],'true');
+ assert.equal(ui.toggle.attrs['aria-pressed'],undefined);
  assert.equal(ui.label.textContent,'Light mode');
  ui.click();
  assert.equal(ui.doc.documentElement.dataset.theme,'light');
  assert.equal(ui.values.get('bcr-color-theme'),'light');
  assert.equal(ui.toggle.attrs['aria-label'],'Switch to dark mode');
- assert.equal(ui.toggle.attrs['aria-pressed'],'false');
+ assert.equal(ui.toggle.attrs['aria-pressed'],undefined);
  assert.equal(ui.icon.textContent,'☾');
  ui.click();
  assert.equal(ui.doc.documentElement.dataset.theme,'dark');
@@ -62,6 +62,7 @@ test('both pages load the same early theme controller and expose semantic switch
    assert.ok(html.indexOf('/theme.js')<html.indexOf('.css'),'Theme initializes before stylesheet');
    assert.equal((html.match(/id="theme-toggle"/g)||[]).length,1);
    assert.match(html,/<button class="[^"]*theme-toggle[^"]*" id="theme-toggle" type="button"/);
+   assert.doesNotMatch(html,/aria-pressed="true"/);
    assert.match(html,/class="theme-toggle-icon" aria-hidden="true"/);
  }
  assert.match(publicHtml,/id="access-form"/);
