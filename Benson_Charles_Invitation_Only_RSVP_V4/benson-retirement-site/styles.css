@@ -198,7 +198,7 @@ html[data-theme="light"] .info .section-intro h2 em{color:#8c622b}
 html[data-theme="light"] .info .section-intro .intro-copy{color:#4b5a4e}
 html[data-theme="light"] .info-panel{background:#fffaf1;border-color:#c8af82}
 html[data-theme="light"] .info-panel h3{color:#274633}
-html[data-theme="light"] .info-block,.info .reminder{border-top-color:rgba(120,93,51,.28)}
+html[data-theme="light"] .info .info-block,html[data-theme="light"] .info .reminder{border-top-color:rgba(120,93,51,.28)}
 html[data-theme="light"] .info-block small,
 html[data-theme="light"] .reminder small{color:#79551f}
 html[data-theme="light"] .info-block strong{color:#22392f}
