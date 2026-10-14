@@ -50,3 +50,19 @@ test('Page 2 omits the eyebrow and maintains independent spaced title lines',()=
   assert.match(css,/\.invitation \.section-intro #invite-title em\{display:block;margin-top:\.12em\}/);
   assert.match(css,/@media\(max-width:470px\)\{\.invitation \.section-intro #invite-title em\{margin-top:\.15em\}\}/);
 });
+
+
+test('festive decorations stay on Page 2, behind content and independent of RSVP behavior',()=>{
+  const invitation=html.match(/<section aria-labelledby="invite-title"[\s\S]*?<section aria-labelledby="info-title"/)?.[0]||'';
+  assert.match(invitation,/class="holiday-garland" aria-hidden="true"/);
+  assert.match(invitation,/class="holiday-tree" aria-hidden="true"/);
+  assert.equal((invitation.match(/class="holiday-tree-star"/g)||[]).length,1);
+  assert.equal((invitation.match(/class="holiday-tree-lights"/g)||[]).length,1);
+  assert.equal((invitation.match(/class="holiday-bulbs"/g)||[]).length,1);
+  assert.match(css,/\.invitation \.holiday-garland\{[^}]*z-index:0[^}]*pointer-events:none/);
+  assert.match(css,/\.invitation \.section-intro,\.invitation \.invitation-grid\{position:relative;z-index:1\}/);
+  assert.match(css,/@media\(max-width:1250px\)/);
+  assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\s*\.invitation \.holiday-bulbs circle/);
+  assert.match(invitation,/id="rsvp-form"/);
+  assert.match(html,/BCR-yacht-hero-loop-polished\.mp4/);
+});
