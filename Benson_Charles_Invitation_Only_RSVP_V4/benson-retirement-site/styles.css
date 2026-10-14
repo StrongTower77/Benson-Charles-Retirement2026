@@ -216,3 +216,11 @@ html[data-theme="light"] .site-footer{background:#eee4d3;color:#334e3b;border-co
 html[data-theme="light"] .site-footer span{color:#7f5c27}
 
 /* Both schemes keep the hero footage and overlays unchanged for readability. */
+
+
+/* Page Three is never present in the initial HTML. Reveal its navigation and
+   action only after the accepted-only server endpoint verifies the RSVP. */
+.site-header nav a[hidden],#view-details[hidden]{display:none!important}
+.rsvp-card .details-action{margin:13px auto 0;min-height:45px;padding:12px 20px}
+.rsvp-card .details-action:focus-visible{outline:3px solid #9e7b41;outline-offset:3px}
+@media(max-width:470px){.rsvp-card .details-action{width:100%;gap:10px}}
