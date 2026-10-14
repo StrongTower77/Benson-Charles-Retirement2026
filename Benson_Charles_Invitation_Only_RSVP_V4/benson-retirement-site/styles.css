@@ -93,3 +93,42 @@
 .invitation .section-intro #invite-title{line-height:1.12}
 .invitation .section-intro #invite-title em{display:block;margin-top:.12em}
 @media(max-width:470px){.invitation .section-intro #invite-title em{margin-top:.15em}}
+
+
+/* Page 2: restrained holiday illumination. Decorative only; content and RSVP stay above it. */
+.invitation .holiday-garland{position:absolute;inset:12px 0 auto;z-index:0;height:88px;overflow:hidden;pointer-events:none}
+.invitation .holiday-garland svg{display:block;width:100%;height:100%}
+.invitation .holiday-cord{fill:none;stroke:#a98a52;stroke-opacity:.48;stroke-width:1.2;vector-effect:non-scaling-stroke}
+.invitation .holiday-bulbs circle{fill:#f6db99;opacity:.55;filter:drop-shadow(0 0 3px #efc775);animation:holiday-bulb-glow 4.2s ease-in-out infinite}
+.invitation .holiday-bulbs circle:nth-child(3n+1){animation-delay:-1.3s}
+.invitation .holiday-bulbs circle:nth-child(3n+2){animation-delay:-2.9s}
+.invitation .holiday-bulbs circle:nth-child(4n){fill:#fff0ce;animation-duration:5.1s}
+.invitation .section-intro,.invitation .invitation-grid{position:relative;z-index:1}
+.invitation .section-intro{isolation:isolate}
+.invitation .holiday-tree{position:absolute;right:-238px;top:-9px;width:205px;height:284px;pointer-events:none;opacity:.96;filter:drop-shadow(0 12px 15px rgba(37,52,35,.15))}
+.invitation .holiday-tree svg{display:block;width:100%;height:100%;overflow:visible}
+.invitation .holiday-tree-ground{fill:#3c4830;opacity:.13}
+.invitation .holiday-tree-trunk{fill:#6b4d30}
+.invitation .holiday-tree-tier.tier-back{fill:#173f32}
+.invitation .holiday-tree-tier.tier-mid{fill:#245240;stroke:#c4a16a;stroke-width:.65;stroke-opacity:.72}
+.invitation .holiday-tree-branch{fill:none;stroke:#12372b;stroke-width:6;stroke-linecap:round;opacity:.65}
+.invitation .holiday-tree-garland{fill:none;stroke:#d6b26a;stroke-width:1.6;stroke-linecap:round;opacity:.85}
+.invitation .holiday-tree-ornaments circle{fill:#a56a4b;stroke:#e4c98e;stroke-width:.75}
+.invitation .holiday-tree-lights circle{fill:#ffe3a7;filter:drop-shadow(0 0 3px #edbf68);animation:holiday-bulb-glow 3.8s ease-in-out infinite}
+.invitation .holiday-tree-lights circle:nth-child(3n+1){animation-delay:-1.7s;animation-duration:4.6s}
+.invitation .holiday-tree-lights circle:nth-child(3n+2){animation-delay:-2.8s;fill:#fff3d4}
+.invitation .holiday-tree-star{fill:#f1d391;stroke:#fff0cb;stroke-width:.8;transform-box:fill-box;transform-origin:center;animation:holiday-star-glow 4.4s ease-in-out infinite;filter:drop-shadow(0 0 4px #ecc270)}
+@keyframes holiday-bulb-glow{0%,100%{opacity:.35}47%{opacity:1}72%{opacity:.64}}
+@keyframes holiday-star-glow{0%,100%{opacity:.72;transform:scale(.97);filter:drop-shadow(0 0 2px #ecc270)}50%{opacity:1;transform:scale(1.06);filter:drop-shadow(0 0 10px #e3b75a)}}
+@media(max-width:1250px){
+ .invitation .holiday-tree{position:relative;right:auto;top:auto;width:160px;height:auto;aspect-ratio:210/290;margin:24px auto -8px;opacity:1}
+ .invitation .section-intro{margin-bottom:43px}
+ .invitation .holiday-garland{height:75px;opacity:.75}
+}
+@media(max-width:650px){
+ .invitation .holiday-tree{width:132px;margin:20px auto -4px}
+ .invitation .holiday-garland{height:55px;opacity:.54;top:9px}
+}
+@media(prefers-reduced-motion:reduce){
+ .invitation .holiday-bulbs circle,.invitation .holiday-tree-lights circle,.invitation .holiday-tree-star{animation:none!important;opacity:.85;transform:none}
+}
