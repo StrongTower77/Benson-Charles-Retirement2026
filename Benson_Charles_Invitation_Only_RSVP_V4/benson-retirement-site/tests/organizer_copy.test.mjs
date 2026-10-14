@@ -67,3 +67,11 @@ test('festive decorations stay on Page 2, behind content and independent of RSVP
   assert.match(invitation,/id="rsvp-form"/);
   assert.match(html,/BCR-yacht-hero-loop-polished\.mp4/);
 });
+
+
+test('Page 3 removes the page number but preserves event information heading',()=>{
+  const section=html.match(/<section aria-labelledby="info-title"[\s\S]*?<div class="info-grid">/)?.[0]||'';
+  assert.match(section,/<div class="section-intro"><p class="eyebrow">Everything You Need to Know<\/p>/);
+  assert.doesNotMatch(section,/Page Three|Page 3/);
+  assert.match(section,/<h2 id="info-title">The Details <em>&amp; Directions<\/em><\/h2>/);
+});
