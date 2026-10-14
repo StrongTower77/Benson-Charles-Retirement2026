@@ -19,7 +19,7 @@
     const toLight=next==='dark';
     toggle.setAttribute('aria-label',toLight?'Switch to light mode':'Switch to dark mode');
     toggle.setAttribute('title',toLight?'Switch to light mode':'Switch to dark mode');
-    toggle.setAttribute('aria-pressed',next==='dark'?'true':'false');
+    // Action-labelled button: its name states the destination mode.
     const icon=toggle.querySelector('.theme-toggle-icon');
     const label=toggle.querySelector('.theme-toggle-label');
     if(icon)icon.textContent=toLight?'☀':'☾';
