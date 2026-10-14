@@ -40,3 +40,13 @@ test('details and directions heading stays together at desktop and mobile widths
   assert.match(css,/\.info \.section-intro #info-title\s*\{[^}]*font-size:clamp\(24px,5\.6vw,59px\)/s);
   assert.match(css,/@media\(max-width:470px\)\s*\{\s*\.info \.section-intro #info-title\s*\{\s*font-size:clamp\(24px,7vw,32px\)/s);
 });
+
+
+test('Page 2 omits the eyebrow and maintains independent spaced title lines',()=>{
+  const section=html.match(/<section aria-labelledby="invite-title"[\s\S]*?<div class="invitation-grid">/)?.[0]||'';
+  assert.doesNotMatch(section,/Page Two\s*·\s*You.re invited/);
+  assert.match(section,/<h2 id="invite-title">A Special Evening<em>of Celebration<\/em><\/h2>/);
+  assert.match(css,/\.invitation \.section-intro #invite-title\{line-height:1\.12\}/);
+  assert.match(css,/\.invitation \.section-intro #invite-title em\{display:block;margin-top:\.12em\}/);
+  assert.match(css,/@media\(max-width:470px\)\{\.invitation \.section-intro #invite-title em\{margin-top:\.15em\}\}/);
+});

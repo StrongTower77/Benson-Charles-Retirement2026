@@ -86,3 +86,10 @@
 @media(max-width:470px){
   .info .section-intro #info-title{font-size:clamp(24px,7vw,32px)}
 }
+
+
+/* Page 2: give each serif title line its own box; never let the italic second
+   line collide with the first, including when the first line wraps on mobile. */
+.invitation .section-intro #invite-title{line-height:1.12}
+.invitation .section-intro #invite-title em{display:block;margin-top:.12em}
+@media(max-width:470px){.invitation .section-intro #invite-title em{margin-top:.15em}}
