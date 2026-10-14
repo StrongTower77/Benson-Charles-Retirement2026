@@ -20,12 +20,50 @@ form.addEventListener('submit',async(e)=>{
   if(resp.status===401){location.replace('/');return;}
   if(!resp.ok)throw new Error(body.error||'RSVP service is currently unavailable.');
   form.hidden=true;document.getElementById('success-message').hidden=false;
-  document.getElementById('success-description').textContent=data.attendance==='yes'?`We have recorded your acceptance for ${data.guestCount} attendee${data.guestCount===1?'':'s'}. You may return before the RSVP deadline to update your response.`:'Your decline has been recorded. Thank you for letting us know.';
+  const description=document.getElementById('success-description');
+  description.textContent=data.attendance==='yes'?`We have recorded your acceptance for ${data.guestCount} attendee${data.guestCount===1?'':'s'}.`:'Your decline has been recorded. Thank you for letting us know.';
+  if(data.attendance==='yes'&&body.detailsUnlocked===true){
+    const loaded=await loadAcceptedDetails();
+    description.textContent+=loaded?' The Details & Directions are now unlocked below.':' The RSVP was saved, but directions could not be loaded. Please refresh this page.';
+  }else lockAcceptedDetails();
  }catch(err){statusEl.textContent=err.message;}finally{submit.disabled=false;submit.innerHTML='Submit RSVP <span>↗</span>';}
 });
 document.getElementById('new-rsvp').addEventListener('click',()=>{form.reset();updateAttendance();form.hidden=false;document.getElementById('success-message').hidden=true;statusEl.textContent='';});
+
+const detailsLink=document.querySelector('[data-link="information"]');
+const detailsAction=document.getElementById('view-details');
+const counts=[...document.querySelectorAll('#announcement .page-count span,#invitation .page-count span')];
+function lockAcceptedDetails(){
+  document.getElementById('information')?.remove();
+  detailsLink.hidden=true;
+  detailsAction.hidden=true;
+  counts.forEach(span=>span.textContent='/ 02');
+  if(location.hash==='#information')history.replaceState(null,'',location.pathname+'#invitation');
+}
+async function loadAcceptedDetails(){
+ try{
+  const response=await fetch('/api/accepted-details',{credentials:'same-origin',cache:'no-store'});
+  if(!response.ok)return false;
+  const fragment=await response.text();
+  // Only the server's accepted-only static HTML can populate this section.
+  if(!fragment.startsWith('<section aria-labelledby="info-title"')||!fragment.includes('id="information"'))return false;
+  document.getElementById('information')?.remove();
+  document.querySelector('main').insertAdjacentHTML('beforeend',fragment);
+  const section=document.getElementById('information');
+  if(!section)return false;
+  detailsLink.hidden=false;
+  detailsAction.hidden=false;
+  counts.forEach(span=>span.textContent='/ 03');
+  navObserver?.observe(section);
+  return true;
+ }catch{return false;}
+}
+// A refresh preserves Page Three only while the current signed RSVP remains accepted.
+void loadAcceptedDetails();
+
 const links=[...document.querySelectorAll('[data-link]')];
-if('IntersectionObserver' in window){const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('active',a.dataset.link===e.target.id));});},{rootMargin:'-30% 0px -55% 0px'});document.querySelectorAll('main>.page').forEach(s=>obs.observe(s));}
+let navObserver=null;
+if('IntersectionObserver' in window){navObserver=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('active',a.dataset.link===e.target.id));});},{rootMargin:'-30% 0px -55% 0px'});document.querySelectorAll('main>.page').forEach(s=>navObserver.observe(s));}
 
 
 /* V7 hero playback: defer network cost for reduced-motion/data-saving clients. */
