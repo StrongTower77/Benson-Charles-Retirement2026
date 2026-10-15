@@ -10,7 +10,7 @@ const publicHtml=readFileSync(new URL('index.html',base),'utf8');
 const privateCss=readFileSync(new URL('styles.css',base),'utf8');
 const publicCss=readFileSync(new URL('access.css',base),'utf8');
 
-function simulate({stored=null,storageDisabled=false}={}){
+function simulate({stored=null,storageDisabled=false,systemDark=true,noMatchMedia=false,legacyMedia=false,mediaThrows=false}={}){
  const values=new Map(stored===null?[]:[['bcr-color-theme',stored]]);
  const calls={};
  const meta={value:null,setAttribute(key,val){assert.equal(key,'content');this.value=val;}};
@@ -18,27 +18,45 @@ function simulate({stored=null,storageDisabled=false}={}){
  const toggle={attrs:{},setAttribute(name,val){this.attrs[name]=val;},querySelector(s){
    return s==='.theme-toggle-icon'?icon:s==='.theme-toggle-label'?label:null;
  },addEventListener(name,fn){calls[name]=fn;}};
- const listeners={};
+ const listeners={},mediaListeners={};
+ const media={matches:systemDark,media:'(prefers-color-scheme: dark)'};
+ if(legacyMedia)media.addListener=fn=>{mediaListeners.change=fn;};
+ else media.addEventListener=(name,fn)=>{mediaListeners[name]=fn;};
  const doc={documentElement:{dataset:{},style:{}},
    querySelector(s){return s==='meta[name="theme-color"]'?meta:null;},
    getElementById(id){return id==='theme-toggle'?toggle:null;},
    addEventListener(name,fn){listeners[name]=fn;}};
  const storage={getItem(k){if(storageDisabled)throw Error('disabled');return values.get(k)||null;},
    setItem(k,val){if(storageDisabled)throw Error('disabled');values.set(k,val);}};
- runInNewContext(theme,{window:{localStorage:storage},document:doc});
- return {doc,values,toggle,meta,icon,label,ready(){listeners.DOMContentLoaded();},click(){calls.click();}};
+ const win={localStorage:storage};
+ if(!noMatchMedia)win.matchMedia=query=>{
+   assert.equal(query,'(prefers-color-scheme: dark)');
+   if(mediaThrows)throw Error('restricted media query');
+   return media;
+ };
+ runInNewContext(theme,{window:win,document:doc});
+ return {doc,values,toggle,meta,icon,label,ready(){listeners.DOMContentLoaded();},click(){calls.click();},
+   systemChange(dark){media.matches=dark;mediaListeners.change?.({matches:dark});}};
 }
-test('a theme preference is resolved before DOM load and stays readable without storage',()=>{
- const defaultState=simulate();
- assert.equal(defaultState.doc.documentElement.dataset.theme,'dark');
- assert.equal(defaultState.doc.documentElement.style.colorScheme,'dark');
- assert.equal(defaultState.meta.value,'#101b18');
- const saved=simulate({stored:'light'});
- assert.equal(saved.doc.documentElement.dataset.theme,'light');
- assert.equal(saved.meta.value,'#f7f0e4');
- assert.equal(simulate({stored:'invalid'}).doc.documentElement.dataset.theme,'dark');
- const fallback=simulate({storageDisabled:true});fallback.ready();fallback.click();
+test('first paint follows OS scheme, stored preference takes priority, and unsupported APIs fall back safely',()=>{
+ const dark=simulate({systemDark:true});
+ assert.equal(dark.doc.documentElement.dataset.theme,'dark');
+ assert.equal(dark.doc.documentElement.style.colorScheme,'dark');
+ assert.equal(dark.meta.value,'#101b18');
+ const light=simulate({systemDark:false});
+ assert.equal(light.doc.documentElement.dataset.theme,'light');
+ assert.equal(light.doc.documentElement.style.colorScheme,'light');
+ assert.equal(light.meta.value,'#f7f0e4');
+ const saved=simulate({stored:'dark',systemDark:false});
+ assert.equal(saved.doc.documentElement.dataset.theme,'dark');
+ assert.equal(simulate({stored:'light',systemDark:true}).doc.documentElement.dataset.theme,'light');
+ assert.equal(simulate({stored:'invalid',systemDark:false}).doc.documentElement.dataset.theme,'light');
+ assert.equal(simulate({noMatchMedia:true}).doc.documentElement.dataset.theme,'dark');
+ assert.equal(simulate({mediaThrows:true}).doc.documentElement.dataset.theme,'dark');
+ const fallback=simulate({storageDisabled:true,systemDark:false});
  assert.equal(fallback.doc.documentElement.dataset.theme,'light');
+ fallback.ready();fallback.click();
+ assert.equal(fallback.doc.documentElement.dataset.theme,'dark');
 });
 test('toggle is usable by keyboard and click, changes labels, and persists both modes',()=>{
  const ui=simulate();ui.ready();
@@ -55,6 +73,34 @@ test('toggle is usable by keyboard and click, changes labels, and persists both 
  assert.equal(ui.doc.documentElement.dataset.theme,'dark');
  assert.equal(ui.values.get('bcr-color-theme'),'dark');
  assert.equal(ui.toggle.attrs['aria-label'],'Switch to light mode');
+});
+test('a system change updates a first-time visitor live, but never overwrites a manually saved choice',()=>{
+ const ui=simulate({systemDark:false});
+ ui.ready();ui.systemChange(true);
+ assert.equal(ui.doc.documentElement.dataset.theme,'dark');
+ assert.equal(ui.meta.value,'#101b18');
+ assert.equal(ui.toggle.attrs['aria-label'],'Switch to light mode');
+ assert.equal(ui.values.has('bcr-color-theme'),false,'system-only preferences must not be persisted');
+ ui.click(); // User chooses Light and now owns the preference.
+ assert.equal(ui.doc.documentElement.dataset.theme,'light');
+ assert.equal(ui.values.get('bcr-color-theme'),'light');
+ ui.systemChange(false);ui.systemChange(true);
+ assert.equal(ui.doc.documentElement.dataset.theme,'light');
+ const saved=simulate({stored:'dark',systemDark:false});
+ saved.ready();saved.systemChange(false);saved.systemChange(true);
+ assert.equal(saved.doc.documentElement.dataset.theme,'dark');
+});
+test('older Safari and disabled storage respect live system changes until a manual toggle',()=>{
+ const legacy=simulate({legacyMedia:true,systemDark:true});
+ legacy.ready();legacy.systemChange(false);
+ assert.equal(legacy.doc.documentElement.dataset.theme,'light');
+ const privateBrowser=simulate({storageDisabled:true,systemDark:true});
+ privateBrowser.ready();privateBrowser.systemChange(false);
+ assert.equal(privateBrowser.doc.documentElement.dataset.theme,'light');
+ privateBrowser.click();
+ assert.equal(privateBrowser.doc.documentElement.dataset.theme,'dark');
+ privateBrowser.systemChange(true);privateBrowser.systemChange(false);
+ assert.equal(privateBrowser.doc.documentElement.dataset.theme,'dark');
 });
 test('both pages load the same early theme controller and expose semantic switches',()=>{
  for(const html of [privateHtml,publicHtml]){
