@@ -10,8 +10,9 @@ const publicHtml=readFileSync(new URL('index.html',base),'utf8');
 const privateCss=readFileSync(new URL('styles.css',base),'utf8');
 const publicCss=readFileSync(new URL('access.css',base),'utf8');
 
-function simulate({stored=null,storageDisabled=false,systemDark=true,noMatchMedia=false,legacyMedia=false,mediaThrows=false}={}){
- const values=new Map(stored===null?[]:[['bcr-color-theme',stored]]);
+function simulate({stored=null,session=new Map(),legacy=new Map(),storageDisabled=false,systemDark=true,noMatchMedia=false,legacyMedia=false,mediaThrows=false}={}){
+ const values=session;
+ if(stored!==null)values.set('bcr-visit-theme',stored);
  const calls={};
  const meta={value:null,setAttribute(key,val){assert.equal(key,'content');this.value=val;}};
  const icon={textContent:''},label={textContent:''};
@@ -26,19 +27,22 @@ function simulate({stored=null,storageDisabled=false,systemDark=true,noMatchMedi
    querySelector(s){return s==='meta[name="theme-color"]'?meta:null;},
    getElementById(id){return id==='theme-toggle'?toggle:null;},
    addEventListener(name,fn){listeners[name]=fn;}};
- const storage={getItem(k){if(storageDisabled)throw Error('disabled');return values.get(k)||null;},
-   setItem(k,val){if(storageDisabled)throw Error('disabled');values.set(k,val);}};
- const win={localStorage:storage};
+ const store=map=>({
+   getItem(k){if(storageDisabled)throw Error('disabled');return map.get(k)??null;},
+   setItem(k,val){if(storageDisabled)throw Error('disabled');map.set(k,val);},
+   removeItem(k){if(storageDisabled)throw Error('disabled');map.delete(k);}
+ });
+ const win={sessionStorage:store(session),localStorage:store(legacy)};
  if(!noMatchMedia)win.matchMedia=query=>{
    assert.equal(query,'(prefers-color-scheme: dark)');
    if(mediaThrows)throw Error('restricted media query');
    return media;
  };
  runInNewContext(theme,{window:win,document:doc});
- return {doc,values,toggle,meta,icon,label,ready(){listeners.DOMContentLoaded();},click(){calls.click();},
+ return {doc,values,legacy,toggle,meta,icon,label,ready(){listeners.DOMContentLoaded();},click(){calls.click();},
    systemChange(dark){media.matches=dark;mediaListeners.change?.({matches:dark});}};
 }
-test('first paint follows OS scheme, stored preference takes priority, and unsupported APIs fall back safely',()=>{
+test('every fresh session follows OS; this session’s manual override takes priority',()=>{
  const dark=simulate({systemDark:true});
  assert.equal(dark.doc.documentElement.dataset.theme,'dark');
  assert.equal(dark.doc.documentElement.style.colorScheme,'dark');
@@ -47,6 +51,10 @@ test('first paint follows OS scheme, stored preference takes priority, and unsup
  assert.equal(light.doc.documentElement.dataset.theme,'light');
  assert.equal(light.doc.documentElement.style.colorScheme,'light');
  assert.equal(light.meta.value,'#f7f0e4');
+ const legacy=new Map([['bcr-color-theme','dark']]);
+ const fresh=simulate({legacy,systemDark:false});
+ assert.equal(fresh.doc.documentElement.dataset.theme,'light');
+ assert.equal(legacy.has('bcr-color-theme'),false,'retire old permanent saved preference');
  const saved=simulate({stored:'dark',systemDark:false});
  assert.equal(saved.doc.documentElement.dataset.theme,'dark');
  assert.equal(simulate({stored:'light',systemDark:true}).doc.documentElement.dataset.theme,'light');
@@ -65,30 +73,46 @@ test('toggle is usable by keyboard and click, changes labels, and persists both 
  assert.equal(ui.label.textContent,'Light mode');
  ui.click();
  assert.equal(ui.doc.documentElement.dataset.theme,'light');
- assert.equal(ui.values.get('bcr-color-theme'),'light');
+ assert.equal(ui.values.get('bcr-visit-theme'),'light');
  assert.equal(ui.toggle.attrs['aria-label'],'Switch to dark mode');
  assert.equal(ui.toggle.attrs['aria-pressed'],undefined);
  assert.equal(ui.icon.textContent,'☾');
  ui.click();
  assert.equal(ui.doc.documentElement.dataset.theme,'dark');
- assert.equal(ui.values.get('bcr-color-theme'),'dark');
+ assert.equal(ui.values.get('bcr-visit-theme'),'dark');
  assert.equal(ui.toggle.attrs['aria-label'],'Switch to light mode');
 });
-test('a system change updates a first-time visitor live, but never overwrites a manually saved choice',()=>{
+test('system changes update visitors live until a manual choice for this visit',()=>{
  const ui=simulate({systemDark:false});
  ui.ready();ui.systemChange(true);
  assert.equal(ui.doc.documentElement.dataset.theme,'dark');
  assert.equal(ui.meta.value,'#101b18');
  assert.equal(ui.toggle.attrs['aria-label'],'Switch to light mode');
- assert.equal(ui.values.has('bcr-color-theme'),false,'system-only preferences must not be persisted');
+ assert.equal(ui.values.has('bcr-visit-theme'),false,'system-only preferences must not be persisted');
  ui.click(); // User chooses Light and now owns the preference.
  assert.equal(ui.doc.documentElement.dataset.theme,'light');
- assert.equal(ui.values.get('bcr-color-theme'),'light');
+ assert.equal(ui.values.get('bcr-visit-theme'),'light');
  ui.systemChange(false);ui.systemChange(true);
  assert.equal(ui.doc.documentElement.dataset.theme,'light');
  const saved=simulate({stored:'dark',systemDark:false});
  saved.ready();saved.systemChange(false);saved.systemChange(true);
  assert.equal(saved.doc.documentElement.dataset.theme,'dark');
+});
+test('entrance-to-event navigation retains this tab override; returning in a fresh session uses the system again',()=>{
+ const currentTab=new Map();
+ const legacy=new Map([['bcr-color-theme','light']]);
+ const entrance=simulate({session:currentTab,legacy,systemDark:false});
+ entrance.ready();entrance.click(); // Light device, manually choose Dark.
+ assert.equal(entrance.doc.documentElement.dataset.theme,'dark');
+ assert.equal(currentTab.get('bcr-visit-theme'),'dark');
+ assert.equal(legacy.size,0,'permanent saved state has been removed');
+ const event=simulate({session:currentTab,legacy,systemDark:false});
+ event.ready();assert.equal(event.doc.documentElement.dataset.theme,'dark');
+ event.systemChange(true);event.systemChange(false);
+ assert.equal(event.doc.documentElement.dataset.theme,'dark');
+ const laterVisit=simulate({session:new Map(),legacy,systemDark:false});
+ assert.equal(laterVisit.doc.documentElement.dataset.theme,'light');
+ assert.equal(laterVisit.values.size,0);
 });
 test('older Safari and disabled storage respect live system changes until a manual toggle',()=>{
  const legacy=simulate({legacyMedia:true,systemDark:true});
