@@ -106,7 +106,8 @@ html[data-theme="light"] .frame::before{background:#faf4e9;color:#846029}
 html[data-theme="light"] .frame::after{background:#eae3d4;color:#846029}
 html[data-theme="light"] .entrance-theme-toggle{background:rgba(255,250,240,.95);border-color:#916e3b;color:#213b2b}
 html[data-theme="light"] .entrance-theme-toggle:hover{background:#eadfc9}
-html[data-theme="light"] .masthead .masthead-mark{background:radial-gradient(ellipse at center,rgba(24,45,34,.88),rgba(24,45,34,.42) 42%,transparent 72%)}
+/* Light entrance crest: a barely perceptible warm ivory highlight, never a dark green oval. */
+html[data-theme="light"] .masthead .masthead-mark{background:radial-gradient(ellipse at center,rgba(255,248,235,.75) 0%,rgba(255,248,235,.22) 44%,transparent 72%)}
 html[data-theme="light"] .masthead p,
 html[data-theme="light"] .eyebrow,
 html[data-theme="light"] .ornament,
