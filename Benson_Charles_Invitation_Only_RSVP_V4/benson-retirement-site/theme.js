@@ -1,7 +1,8 @@
-/* Shared, server-independent appearance preference for the public entrance and gated invitation. */
+/* System-default appearance with a manual override lasting only this browser session. */
 (()=>{
   'use strict';
-  const KEY='bcr-color-theme';
+  const SESSION_KEY='bcr-visit-theme';
+  const LEGACY_KEY='bcr-color-theme';
   const modes=['dark','light'];
   let systemPreference=null;
   try{
@@ -10,10 +11,13 @@
   }catch{} // Older/restricted browsers retain the previous dark default.
   let mode=systemPreference?(systemPreference.matches?'dark':'light'):'dark';
   let manualChoice=false;
+  // Retire the old permanent preference so returning visitors follow their OS.
+  try{window.localStorage.removeItem(LEGACY_KEY);}catch{}
+  // A manual choice survives the entrance-to-event navigation in this tab only.
   try{
-    const stored=window.localStorage.getItem(KEY);
+    const stored=window.sessionStorage.getItem(SESSION_KEY);
     if(modes.includes(stored)){mode=stored;manualChoice=true;}
-  }catch{} // Storage-disabled browsers can still follow the OS and toggle manually.
+  }catch{} // Storage-disabled browsers still support an in-page manual override.
   const root=document.documentElement;
   const themeColor=document.querySelector('meta[name="theme-color"]');
   function apply(next){
@@ -50,9 +54,9 @@
     apply(mode);
     toggle.addEventListener('click',()=>{
       mode=mode==='dark'?'light':'dark';
-      manualChoice=true; // Persist the choice or keep it for this storage-disabled page.
+      manualChoice=true; // Overrides OS changes for the remainder of this visit.
       apply(mode);
-      try{window.localStorage.setItem(KEY,mode);}catch{}
+      try{window.sessionStorage.setItem(SESSION_KEY,mode);}catch{}
     });
   });
 })();
