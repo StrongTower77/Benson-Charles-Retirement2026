@@ -85,6 +85,11 @@ test('private page has contrast treatments for invitation, RSVP, map and layout'
 });
 test('public entrance light mode retains verification form and readable controls',()=>{
  assert.match(publicCss,/html\[data-theme="light"\] \.access-form\{/);
+ // Option A is scoped to the public entrance in light mode; night mode is untouched.
+ assert.match(publicCss,/html\[data-theme="light"\] \.masthead \.masthead-mark\{background:radial-gradient\(ellipse at center,rgba\(255,248,235,\.75\) 0%,rgba\(255,248,235,\.22\) 44%,transparent 72%\)\}/);
+ assert.doesNotMatch(publicCss,/html\[data-theme="light"\] \.masthead \.masthead-mark\{[^}]*rgba\(24,45,34/);
+ assert.match(publicCss,/\.masthead \.official-crest-entrance\{[^}]*object-fit:contain/);
+
  assert.match(publicCss,/html\[data-theme="light"\] \.access-form input\{/);
  assert.match(publicCss,/\.entrance-theme-toggle:focus-visible\{/);
  assert.match(publicCss,/@media\(max-width:640px\)/);
