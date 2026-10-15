@@ -32,6 +32,7 @@ function setup(){
  function database(attendance='yes',active=true){
   globalThis.fetch=async(url,opts)=>{
    const path=String(url);
+   if(path.includes('/check_retirement_rsvp_submit_limit'))return new Response('true',{status:200});
    if(path.includes('/retirement_invitations?'))return new Response(JSON.stringify(active?[{id:invitationId}]:[]),{status:200});
    if(path.includes('/retirement_rsvps?'))return new Response(JSON.stringify(attendance?[{attendance}]:[]),{status:200});
    if(path.includes('/rpc/submit_retirement_rsvp'))return new Response(JSON.stringify({ok:true,maxGuests:4}),{status:200});

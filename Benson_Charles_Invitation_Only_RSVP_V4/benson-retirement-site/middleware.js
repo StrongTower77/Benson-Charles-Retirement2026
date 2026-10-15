@@ -19,7 +19,7 @@ export default function middleware(request) {
     return; // Public entrance only
   }
   // Only the entrance, its assets and code-verification API are public.
-  if (['/access.css','/access.js','/theme.js','/robots.txt','/api/unlock','/assets/benson-charles-official-crest.png'].includes(path) || path.startsWith('/.well-known/')) return;
+  if (['/access.css','/access.js','/theme.js','/robots.txt','/api/unlock','/api/rsvp-email-drain','/assets/benson-charles-official-crest.png'].includes(path) || path.startsWith('/.well-known/')) return;
   if (!session) {
     if (path === '/api/rsvp') return Response.json({ error: 'Your private invitation session has expired. Please unlock your invitation again.' }, { status: 401, headers: { 'Cache-Control': 'no-store' } });
     return Response.redirect(new URL('/', request.url), 302);

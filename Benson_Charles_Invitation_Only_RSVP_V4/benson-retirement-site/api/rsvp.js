@@ -1,5 +1,8 @@
 import { readSession, sameOrigin } from '../lib/session.js';
 import { createAcceptedCookie, clearAcceptedCookie } from '../lib/acceptance.js';
+import { createHash } from 'node:crypto';
+import { waitUntil } from '@vercel/functions';
+import { emailSettings, processRsvpEmailQueue } from '../lib/rsvp-emails.js';
 const EMAIL=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default async function handler(req,res){
  res.setHeader('Cache-Control','no-store');
@@ -21,6 +24,16 @@ export default async function handler(req,res){
      !Number.isInteger(guestCount)||guestCount<0||guestCount>session.maxGuests||(attendance==='yes'&&guestCount<1)||message.length>500)
    return res.status(400).json({error:'Please review your RSVP details.'});
   if(Date.now()>=Date.parse('2026-12-06T00:00:00-05:00'))return res.status(403).json({error:'The RSVP deadline has passed. Please contact the organizer.'});
+  // Shared invite codes should not be usable as an unbounded email-spam trigger.
+  // Keep RSVP throttling separate from invitation unlock attempts.
+  const forwarded=String(req.headers['x-vercel-forwarded-for']||req.headers['x-real-ip']||req.socket?.remoteAddress||'unavailable').split(',')[0].trim();
+  const fingerprint=createHash('sha256').update(process.env.RSVP_SESSION_SECRET+':rsvp:'+session.hash+':'+forwarded).digest('hex');
+  const throttle=await fetch(url.replace(/\/$/,'')+'/rest/v1/rpc/check_retirement_rsvp_submit_limit',{
+    method:'POST',headers:{apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json'},
+    body:JSON.stringify({p_fingerprint:fingerprint}),cache:'no-store',signal:AbortSignal.timeout(7000)
+  });
+  if(!throttle.ok)return res.status(503).json({error:'RSVP service temporarily unavailable. Please try again shortly.'});
+  if(await throttle.json()!==true){res.setHeader('Retry-After','600');return res.status(429).json({error:'Too many RSVP attempts. Please try again in 10 minutes.'});}
   const response=await fetch(`${url.replace(/\/$/,'')}/rest/v1/rpc/submit_retirement_rsvp`,{
    method:'POST',headers:{apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json'},
    body:JSON.stringify({p_code_hash:session.hash,p_full_name:fullName,p_email:email,p_attendance:attendance,p_guest_count:guestCount,p_message:message}),
@@ -32,6 +45,12 @@ export default async function handler(req,res){
   // Only a committed acceptance issues a signed respondent-bound ticket.
   // Declining clears any previously granted Page Three access in this browser.
   res.setHeader('Set-Cookie',attendance==='yes'?createAcceptedCookie(session,email):clearAcceptedCookie());
+  // The RSVP and authorization state are already committed. Email delivery is
+  // best-effort and must never affect the Page Three entitlement or the response.
+  if(emailSettings()){
+    try{waitUntil(processRsvpEmailQueue().catch(err=>console.error('RSVP mail queue:',err?.name||'error')));}
+    catch(err){console.error('RSVP email scheduling error',err?.name||'unknown');}
+  }
   return res.status(200).json({ok:true,detailsUnlocked:attendance==='yes'});
  }catch(err){console.error('RSVP error',err?.name);return res.status(503).json({error:'Unable to process RSVP right now.'});}
 }
